@@ -1204,6 +1204,13 @@ static int ser_hid_write(struct sr_serial_dev_inst *serial,
 			sr_err("Error sending transmit data to HID device.");
 			return total;
 		}
+		
+		#ifdef _WIN32
+		if (rc > chunk_len){
+			rc = chunk_len;
+		}
+		#endif
+		
 		if (rc != chunk_len) {
 			sr_warn("Short transmission to HID device (%d/%d bytes)?",
 					rc, chunk_len);
