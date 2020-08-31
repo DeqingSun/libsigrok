@@ -135,7 +135,7 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
 
 	g_usleep(RESPONSE_DELAY_US);
 
-	if (serial_has_receive_data(serial) == 0) {
+	if (serial->lib_funcs->get_rx_avail && serial_has_receive_data(serial) == 0) {
 		sr_dbg("Didn't get any ID reply.");
 		return NULL;
 	}
@@ -162,7 +162,7 @@ static GSList *scan(struct sr_dev_driver *di, GSList *options)
 
 	g_usleep(RESPONSE_DELAY_US);
 
-	if (serial_has_receive_data(serial) != 0) {
+	if (!serial->lib_funcs->get_rx_avail || serial_has_receive_data(serial) != 0) {
 		/* Got metadata. */
 		sdi = get_metadata(serial);
 	} else {
