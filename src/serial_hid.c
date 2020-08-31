@@ -559,7 +559,18 @@ SR_PRIV int ser_hid_hidapi_set_data(struct sr_serial_dev_inst *serial,
 	(void)ep;
 	(void)timeout;
 
-	rc = hid_write(serial->hid_dev, data, len);
+	/*
+ 	The first byte of @p data[] must contain the Report ID. For devices which only support a single report, this must be set to 0x0.
+	none of the HID file is doing it, we do it here.
+	*/
+
+	uint8_t buffer[1 + SER_HID_CHUNK_SIZE];
+
+	buffer[0] = 0;
+
+	memcpy(&buffer[1], data, len);
+	
+	rc = hid_write(serial->hid_dev, buffer, len+1);
 	if (rc < 0)
 		return SR_ERR_IO;
 
