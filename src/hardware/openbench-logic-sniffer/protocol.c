@@ -29,8 +29,12 @@ SR_PRIV int send_shortcommand(struct sr_serial_dev_inst *serial,
 	buf[0] = command;
 	if (serial_write_blocking(serial, buf, 1, serial_timeout(serial, 1)) != 1)
 		return SR_ERR;
-
-	if (serial_drain(serial) != SR_OK)
+		
+	int drain_ret = serial_drain(serial);
+	
+	if (drain_ret == SR_ERR_NA)
+		g_usleep(20000);
+	else if (drain_ret != SR_OK)
 		return SR_ERR;
 
 	return SR_OK;
@@ -51,7 +55,11 @@ SR_PRIV int send_longcommand(struct sr_serial_dev_inst *serial,
 	if (serial_write_blocking(serial, buf, 5, serial_timeout(serial, 1)) != 5)
 		return SR_ERR;
 
-	if (serial_drain(serial) != SR_OK)
+	int drain_ret = serial_drain(serial);
+	
+	if (drain_ret == SR_ERR_NA)
+		g_usleep(20000);
+	else if (drain_ret != SR_OK)
 		return SR_ERR;
 
 	return SR_OK;
